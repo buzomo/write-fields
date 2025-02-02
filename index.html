@@ -1,364 +1,376 @@
-
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <style>
-        :root {
-            --bg-color: #ffffff;
-            --text-color: #000000;
-            --border-color: #ccc;
-            --toolbar-bg: #f5f5f5;
-            --drag-bg: rgba(0, 0, 0, 0.1);
-        }
+      :root {
+        --bg-color: #ffffff;
+        --text-color: #000000;
+        --border-color: #ccc;
+        --toolbar-bg: #f5f5f5;
+        --drag-bg: rgba(0, 0, 0, 0.1);
+      }
 
-        [data-theme="dark"] {
-            --bg-color: #1e1e1e;
-            --text-color: #ffffff;
-            --border-color: #444;
-            --toolbar-bg: #2d2d2d;
-            --drag-bg: rgba(255, 255, 255, 0.1);
-        }
+      [data-theme="dark"] {
+        --bg-color: #1e1e1e;
+        --text-color: #ffffff;
+        --border-color: #444;
+        --toolbar-bg: #2d2d2d;
+        --drag-bg: rgba(255, 255, 255, 0.1);
+      }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        html, body {
-            height: 100vh;
-            overflow: hidden;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
+      html,
+      body {
+        height: 100vh;
+        overflow: hidden;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+      }
 
-        .container {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+      .container {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
 
-        .toolbar {
-            padding: 8px;
-            background-color: var(--toolbar-bg);
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-        }
+      .toolbar {
+        padding: 8px;
+        background-color: var(--toolbar-bg);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        border-bottom: 1px solid var(--border-color);
+      }
 
-        .editor-container {
-            flex: 1;
-            display: grid;
-            gap: 4px;
-            padding: 4px;
-            height: calc(100% - 50px);
-            width: 100%;
-        }
+      .editor-container {
+        flex: 1;
+        display: grid;
+        gap: 4px;
+        padding: 4px;
+        height: calc(100% - 50px);
+        width: 100%;
+      }
 
-        .editor-wrapper {
-            position: relative;
-            min-width: 0;
-            min-height: 0;
-        }
+      .editor-wrapper {
+        position: relative;
+        min-width: 0;
+        min-height: 0;
+      }
 
-        .editor-wrapper.dragging {
-            opacity: 0.5;
-        }
+      .editor-wrapper.dragging {
+        opacity: 0.5;
+      }
 
-        .editor-wrapper.drag-over {
-            background-color: var(--drag-bg);
-        }
+      .editor-wrapper.drag-over {
+        background-color: var(--drag-bg);
+      }
 
-        textarea {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            resize: none;
-            padding: 0.5rem;
-            font-family: monospace;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-        }
+      textarea {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        resize: none;
+        padding: 0.5rem;
+        font-family: monospace;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+      }
 
-        .close-button {
-            position: absolute;
-            right: 5px;
-            top: 5px;
-            z-index: 10;
-            background: var(--toolbar-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 3px;
-            padding: 2px 6px;
-            cursor: pointer;
-            display: none;
-        }
+      .close-button {
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        z-index: 10;
+        background: var(--toolbar-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 3px;
+        padding: 2px 6px;
+        cursor: pointer;
+        display: none;
+      }
 
-        .editor-wrapper:hover .close-button {
-            display: block;
-        }
+      .editor-wrapper:hover .close-button {
+        display: block;
+      }
 
-        select, button {
-            padding: 4px 8px;
-            background: var(--bg-color);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-radius: 3px;
-        }
+      select,
+      button {
+        padding: 4px 8px;
+        background: var(--bg-color);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        border-radius: 3px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="toolbar">
-            <select id="fontSize">
-                <option value="12px">12px</option>
-                <option value="14px" selected>14px</option>
-                <option value="16px">16px</option>
-                <option value="18px">18px</option>
-                <option value="20px">20px</option>
-            </select>
-            <button id="themeToggle">🌓 テーマ切替</button>
+      <div class="toolbar">
+        <select id="fontSize">
+          <option value="12px">12px</option>
+          <option value="14px" selected>14px</option>
+          <option value="16px">16px</option>
+          <option value="18px">18px</option>
+          <option value="20px">20px</option>
+        </select>
+        <button id="themeToggle">🌓 テーマ切替</button>
+      </div>
+      <div class="editor-container" id="editorContainer">
+        <div class="editor-wrapper">
+          <textarea
+            id="editor-0"
+            placeholder="テキストを入力してください。Alt+Enterで画面を分割できます。"
+          ></textarea>
+          <button class="close-button">✕</button>
         </div>
-        <div class="editor-container" id="editorContainer">
-            <div class="editor-wrapper">
-                <textarea id="editor-0" placeholder="テキストを入力してください。Alt+Enterで画面を分割できます。"></textarea>
-                <button class="close-button">✕</button>
-            </div>
-        </div>
+      </div>
     </div>
 
     <script>
-        const container = document.querySelector('#editorContainer');
-        const STORAGE_KEY = 'split-editor-state';
-        const MAX_EDITORS = 16;
+      const container = document.querySelector("#editorContainer");
+      const STORAGE_KEY = "split-editor-state";
+      const MAX_EDITORS = 16;
 
-        const layoutConfigs = [
-            { count: 1, cols: 1, rows: 1 },
-            { count: 2, cols: 2, rows: 1 },
-            { count: 3, cols: 3, rows: 1 },
-            { count: 4, cols: 2, rows: 2 },
-            { count: 6, cols: 3, rows: 2 },
-            { count: 8, cols: 4, rows: 2 },
-            { count: 9, cols: 3, rows: 3 },
-            { count: 12, cols: 4, rows: 3 },
-            { count: 16, cols: 4, rows: 4 }
-        ];
+      const layoutConfigs = [
+        { count: 1, cols: 1, rows: 1 },
+        { count: 2, cols: 2, rows: 1 },
+        { count: 3, cols: 3, rows: 1 },
+        { count: 4, cols: 2, rows: 2 },
+        { count: 6, cols: 3, rows: 2 },
+        { count: 8, cols: 4, rows: 2 },
+        { count: 9, cols: 3, rows: 3 },
+        { count: 12, cols: 4, rows: 3 },
+        { count: 16, cols: 4, rows: 4 },
+      ];
 
-        class Editor {
-            constructor(id = null) {
-                this.wrapper = document.createElement('div');
-                this.wrapper.className = 'editor-wrapper';
-                
-                this.textarea = document.createElement('textarea');
-                this.textarea.id = id || `editor-${Date.now()}`;
-                this.textarea.placeholder = 'テキストを入力してください。Alt+Enterで画面を分割できます。';
-                
-                this.closeButton = document.createElement('button');
-                this.closeButton.className = 'close-button';
-                this.closeButton.textContent = '✕';
-                
-                this.wrapper.appendChild(this.textarea);
-                this.wrapper.appendChild(this.closeButton);
-                this.addEventListeners();
-            }
+      class Editor {
+        constructor(id = null) {
+          this.wrapper = document.createElement("div");
+          this.wrapper.className = "editor-wrapper";
 
-            addEventListeners() {
-                this.textarea.addEventListener('keydown', (e) => {
-                    if (e.altKey && e.key === 'Enter') {
-                        e.preventDefault();
-                        if (!this.hasEmptyEditors()) {
-                            splitEditor(this);
-                        }
-                    }
-                });
-                
-                this.textarea.addEventListener('input', saveState);
-                this.closeButton.addEventListener('click', () => manager.removeEditor(this));
-                
-                // ドラッグ&ドロップ
-                this.wrapper.draggable = true;
-                this.wrapper.addEventListener('dragstart', (e) => {
-                    e.dataTransfer.setData('text/plain', this.id);
-                    this.wrapper.classList.add('dragging');
-                });
-                this.wrapper.addEventListener('dragend', () => {
-                    this.wrapper.classList.remove('dragging');
-                });
-                this.wrapper.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    this.wrapper.classList.add('drag-over');
-                });
-                this.wrapper.addEventListener('dragleave', () => {
-                    this.wrapper.classList.remove('drag-over');
-                });
-                this.wrapper.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    this.wrapper.classList.remove('drag-over');
-                    const sourceId = e.dataTransfer.getData('text/plain');
-                    manager.swapEditors(sourceId, this.id);
-                });
-            }
+          this.textarea = document.createElement("textarea");
+          this.textarea.id = id || `editor-${Date.now()}`;
+          this.textarea.placeholder =
+            "テキストを入力してください。Alt+Enterで画面を分割できます。";
 
-            hasEmptyEditors() {
-                return manager.editors.some(editor => editor.value.trim() === '');
-            }
+          this.closeButton = document.createElement("button");
+          this.closeButton.className = "close-button";
+          this.closeButton.textContent = "✕";
 
-            appendTo(container) {
-                container.appendChild(this.wrapper);
-            }
-
-            focus() {
-                this.textarea.focus();
-            }
-
-            get value() {
-                return this.textarea.value;
-            }
-
-            set value(val) {
-                this.textarea.value = val;
-            }
-
-            get id() {
-                return this.textarea.id;
-            }
-
-            remove() {
-                this.wrapper.remove();
-            }
+          this.wrapper.appendChild(this.textarea);
+          this.wrapper.appendChild(this.closeButton);
+          this.addEventListeners();
         }
 
-        class EditorManager {
-            constructor() {
-                this.editors = [];
+        addEventListeners() {
+          this.textarea.addEventListener("keydown", (e) => {
+            if (e.altKey && e.key === "Enter") {
+              e.preventDefault();
+              if (!this.hasEmptyEditors()) {
+                splitEditor(this);
+              }
             }
+          });
 
-            addEditor(editor) {
-                this.editors.push(editor);
-                editor.appendTo(container);
-                this.updateLayout();
-            }
+          this.textarea.addEventListener("input", saveState);
+          this.closeButton.addEventListener("click", () =>
+            manager.removeEditor(this)
+          );
 
-            removeEditor(editor) {
-                const index = this.editors.indexOf(editor);
-                if (index > -1) {
-                    this.editors.splice(index, 1);
-                    editor.remove();
-                    this.updateLayout();
-                    saveState();
-                }
-            }
-
-            swapEditors(sourceId, targetId) {
-                const sourceIndex = this.editors.findIndex(e => e.id === sourceId);
-                const targetIndex = this.editors.findIndex(e => e.id === targetId);
-                
-                if (sourceIndex > -1 && targetIndex > -1) {
-                    [this.editors[sourceIndex], this.editors[targetIndex]] = 
-                    [this.editors[targetIndex], this.editors[sourceIndex]];
-                    
-                    this.updateLayout();
-                    saveState();
-                }
-            }
-
-            clear() {
-                container.innerHTML = '';
-                this.editors = [];
-            }
-
-            getOptimalLayout() {
-                const config = layoutConfigs.find(c => c.count >= this.editors.length) || 
-                             layoutConfigs[layoutConfigs.length - 1];
-                return {
-                    cols: config.cols,
-                    rows: config.rows
-                };
-            }
-
-            updateLayout() {
-                const layout = this.getOptimalLayout();
-                container.style.gridTemplateColumns = `repeat(${layout.cols}, 1fr)`;
-                container.style.gridTemplateRows = `repeat(${layout.rows}, 1fr)`;
-                
-                // エディタを順番に再配置
-                this.editors.forEach((editor, index) => {
-                    container.appendChild(editor.wrapper);
-                });
-            }
-
-            saveState() {
-                const state = this.editors
-                    .filter(editor => editor.value.trim() !== '') // 空のエディタを除外
-                    .map(editor => ({
-                        id: editor.id,
-                        value: editor.value
-                    }));
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-            }
-
-            loadState() {
-                try {
-                    const state = JSON.parse(localStorage.getItem(STORAGE_KEY));
-                    if (state && state.length > 0) {
-                        this.clear();
-                        state.forEach(editorState => {
-                            const editor = new Editor(editorState.id);
-                            editor.value = editorState.value;
-                            this.addEditor(editor);
-                        });
-                    }
-                } catch (e) {
-                    console.error('Failed to load editor state:', e);
-                }
-            }
+          // ドラッグ&ドロップ
+          this.wrapper.draggable = true;
+          this.wrapper.addEventListener("dragstart", (e) => {
+            e.dataTransfer.setData("text/plain", this.id);
+            this.wrapper.classList.add("dragging");
+          });
+          this.wrapper.addEventListener("dragend", () => {
+            this.wrapper.classList.remove("dragging");
+          });
+          this.wrapper.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            this.wrapper.classList.add("drag-over");
+          });
+          this.wrapper.addEventListener("dragleave", () => {
+            this.wrapper.classList.remove("drag-over");
+          });
+          this.wrapper.addEventListener("drop", (e) => {
+            e.preventDefault();
+            this.wrapper.classList.remove("drag-over");
+            const sourceId = e.dataTransfer.getData("text/plain");
+            manager.swapEditors(sourceId, this.id);
+          });
         }
 
-        const manager = new EditorManager();
+        hasEmptyEditors() {
+          return manager.editors.some((editor) => editor.value.trim() === "");
+        }
 
-        // フォントサイズの変更
-        document.getElementById('fontSize').addEventListener('change', (e) => {
-            const size = e.target.value;
-            document.querySelectorAll('textarea').forEach(textarea => {
-                textarea.style.fontSize = size;
-            });
-        });
+        appendTo(container) {
+          container.appendChild(this.wrapper);
+        }
 
-        // テーマの切り替え
-        document.getElementById('themeToggle').addEventListener('click', () => {
-            document.documentElement.setAttribute('data-theme', 
-                document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
-            );
-        });
+        focus() {
+          this.textarea.focus();
+        }
 
-        function splitEditor(currentEditor) {
-            if (manager.editors.length >= MAX_EDITORS) return;
+        get value() {
+          return this.textarea.value;
+        }
 
-            const newEditor = new Editor();
-            manager.addEditor(newEditor);
-            newEditor.focus();
+        set value(val) {
+          this.textarea.value = val;
+        }
+
+        get id() {
+          return this.textarea.id;
+        }
+
+        remove() {
+          this.wrapper.remove();
+        }
+      }
+
+      class EditorManager {
+        constructor() {
+          this.editors = [];
+        }
+
+        addEditor(editor) {
+          this.editors.push(editor);
+          editor.appendTo(container);
+          this.updateLayout();
+        }
+
+        removeEditor(editor) {
+          const index = this.editors.indexOf(editor);
+          if (index > -1) {
+            this.editors.splice(index, 1);
+            editor.remove();
+            this.updateLayout();
             saveState();
+          }
         }
 
-        function saveState() {
-            manager.saveState();
+        swapEditors(sourceId, targetId) {
+          const sourceIndex = this.editors.findIndex((e) => e.id === sourceId);
+          const targetIndex = this.editors.findIndex((e) => e.id === targetId);
+
+          if (sourceIndex > -1 && targetIndex > -1) {
+            [this.editors[sourceIndex], this.editors[targetIndex]] = [
+              this.editors[targetIndex],
+              this.editors[sourceIndex],
+            ];
+
+            this.updateLayout();
+            saveState();
+          }
         }
 
-        // 初期エディタの設定
-        const initialEditor = new Editor('editor-0');
-        manager.addEditor(initialEditor);
+        clear() {
+          container.innerHTML = "";
+          this.editors = [];
+        }
 
-        // ウィンドウリサイズ時にレイアウトを更新
-        window.addEventListener('resize', () => {
-            manager.updateLayout();
+        getOptimalLayout() {
+          const config =
+            layoutConfigs.find((c) => c.count >= this.editors.length) ||
+            layoutConfigs[layoutConfigs.length - 1];
+          return {
+            cols: config.cols,
+            rows: config.rows,
+          };
+        }
+
+        updateLayout() {
+          const layout = this.getOptimalLayout();
+          container.style.gridTemplateColumns = `repeat(${layout.cols}, 1fr)`;
+          container.style.gridTemplateRows = `repeat(${layout.rows}, 1fr)`;
+
+          // エディタを順番に再配置
+          this.editors.forEach((editor, index) => {
+            container.appendChild(editor.wrapper);
+          });
+        }
+
+        saveState() {
+          const state = this.editors
+            .filter((editor) => editor.value.trim() !== "") // 空のエディタを除外
+            .map((editor) => ({
+              id: editor.id,
+              value: editor.value,
+            }));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        loadState() {
+          try {
+            const state = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            if (state && state.length > 0) {
+              this.clear();
+              state.forEach((editorState) => {
+                const editor = new Editor(editorState.id);
+                editor.value = editorState.value;
+                this.addEditor(editor);
+              });
+            }
+          } catch (e) {
+            console.error("Failed to load editor state:", e);
+          }
+        }
+      }
+
+      const manager = new EditorManager();
+
+      // フォントサイズの変更
+      document.getElementById("fontSize").addEventListener("change", (e) => {
+        const size = e.target.value;
+        document.querySelectorAll("textarea").forEach((textarea) => {
+          textarea.style.fontSize = size;
         });
+      });
 
-        // 保存された状態を読み込む
-        manager.loadState();
+      // テーマの切り替え
+      document.getElementById("themeToggle").addEventListener("click", () => {
+        document.documentElement.setAttribute(
+          "data-theme",
+          document.documentElement.getAttribute("data-theme") === "dark"
+            ? "light"
+            : "dark"
+        );
+      });
+
+      function splitEditor(currentEditor) {
+        if (manager.editors.length >= MAX_EDITORS) return;
+
+        const newEditor = new Editor();
+        manager.addEditor(newEditor);
+        newEditor.focus();
+        saveState();
+      }
+
+      function saveState() {
+        manager.saveState();
+      }
+
+      // 初期エディタの設定
+      const initialEditor = new Editor("editor-0");
+      manager.addEditor(initialEditor);
+
+      // ウィンドウリサイズ時にレイアウトを更新
+      window.addEventListener("resize", () => {
+        manager.updateLayout();
+      });
+
+      // 保存された状態を読み込む
+      manager.loadState();
     </script>
-</body>
+  </body>
 </html>
-  
